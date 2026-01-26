@@ -3,66 +3,55 @@ import 'package:sqflite/sqflite.dart';
 
 class Sqldb {
   static Database? _db;
+
   Future<Database?> get db async {
     if (_db == null) {
       _db = await initialDb();
-      return _db;
-    } else {
-      return _db;
     }
+    return _db;
   }
 
-  initialDb() async {
+  Future<Database> initialDb() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, 'noor.db');
+
     Database mydb = await openDatabase(
       path,
+      version: 1,
       onCreate: _onCreate,
-      version: 3,
-      onUpgrade: _onUpgrade,
     );
+
     return mydb;
   }
 
-  _onUpgrade(Database db, int oldversion, int newversion) {
-    print("onUpgrade=======");
-  }
-
-  _onCreate(Database db, int version) async {
-    await db.execute
-    /////// create table await db
-    ('''CREATE TABLE "notes"(
-    "id" INTEGER PRIMARY NOT NULL KEY AUTOINCREMENT  ,
-     note TEXT NOT NULL
-    
-    )
-  
- ''');
+  Future<void> _onCreate(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE notes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        note TEXT NOT NULL
+      )
+    ''');
 
     print("onCreate ==========");
   }
 
-  readData(String sql) async {
+  Future<List<Map<String, dynamic>>> readData(String sql) async {
     Database? mydb = await db;
-    List<Map> response = await mydb!.rawQuery(sql);
-    return response;
+    return await mydb!.rawQuery(sql);
   }
 
-  insertData(String sql) async {
+  Future<int> insertData(String sql) async {
     Database? mydb = await db;
-    int response = await mydb!.rawInsert(sql);
-    return response;
+    return await mydb!.rawInsert(sql);
   }
 
-  updateData(String sql) async {
+  Future<int> updateData(String sql) async {
     Database? mydb = await db;
-    int response = await mydb!.rawUpdate(sql);
-    return response;
+    return await mydb!.rawUpdate(sql);
   }
 
-  deleteData(String sql) async {
+  Future<int> deleteData(String sql) async {
     Database? mydb = await db;
-    int response = await mydb!.rawDelete(sql);
-    return response;
+    return await mydb!.rawDelete(sql);
   }
 }
